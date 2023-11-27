@@ -45,7 +45,8 @@ Here is a list of the scripts included in this folder:
 
    - render_recordings.py: A script for visualizing the content of the event data, 
      leveraging the frames representation and providing a synchronized view with the 
-     infrared recordings and the fine-grained ground truth labels.
+     infrared recordings and the fine-grained ground truth labels. It generates a video that is located
+     in Renders folder.
      
    - train_ResNet-E: A script to train ResNet-E model. As result, it  generates a folder with the date 
      as name that contains a checkpoint.pth with the snapshot of the trained model and a 
