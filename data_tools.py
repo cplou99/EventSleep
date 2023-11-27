@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import seaborn as sn
 from tabulate import tabulate
 from pathlib import Path
+from scipy import stats
 
 def LabelsNames():
     labels_dict = {0: 'HeadMove', 1: 'Hands2Face/Head', 2: 'RollLeft', 3: 'RollRight', 4: 'LegsShake', 5: 'ArmsShake',
@@ -132,6 +133,67 @@ def StackInfraredImages(X, frames_per_image):
         for j in range(frames_per_image):
             X_im[i, :, :, j] = X[i + j, :, :, 0]
     return X_im
+
+
+
+def mode_pred_per_clips(labels_gt, labels_pred):
+    sublists_gt, sublists_pred = [], []  # List to store sublists
+    current_sequence_gt, current_sequence_pred = [], []  # List to store the current sequence
+    # Iterate through the input list and split it into sublists
+    for i in range(len(labels_gt)):
+        if i == 0 or labels_gt[i] == labels_gt[i - 1]:
+            current_sequence_gt.append(labels_gt[i])
+            current_sequence_pred.append(labels_pred[i])
+        else:
+            sublists_gt.append(current_sequence_gt)
+            sublists_pred.append(current_sequence_pred)
+            current_sequence_gt, current_sequence_pred = [labels_gt[i]], [labels_pred[i]]
+
+    sublists_gt.append(current_sequence_gt)
+    sublists_pred.append(current_sequence_pred)
+    n_clips = len(sublists_gt)
+    # print(f'Sequence of {n_clips} clips')
+    clips_gt, clips_pred = [], []
+    for j in range(n_clips):
+        clip_preds = sublists_pred[j]
+        clip_pred = stats.mode(clip_preds)[0][0]
+        clips_gt.append(sublists_gt[j][0])
+        clips_pred.append(clip_pred)
+
+    return clips_gt, clips_pred
+
+
+def prob_pred_per_clips(labels_gt, labels_pred, num_frames=False):
+    import scipy
+    sublists_gt, sublists_pred, clips_len = [], [], [] # List to store sublists
+    current_sequence_gt, current_sequence_pred = [], np.zeros(10) # List to store the current sequence
+    # Iterate through the input list and split it into sublists
+    for i in range(len(labels_gt)):
+        if i == 0 or labels_gt[i] == labels_gt[i - 1]:
+            current_sequence_gt.append(labels_gt[i])
+            current_sequence_pred += np.array(labels_pred[i])
+        else:
+            sublists_gt.append(current_sequence_gt)
+            sublists_pred.append(current_sequence_pred)
+            current_sequence_gt, current_sequence_pred = [labels_gt[i]], np.array(labels_pred[i])
+
+    sublists_gt.append(current_sequence_gt)
+    sublists_pred.append(current_sequence_pred)
+    n_clips = len(sublists_gt)
+    # print(f'Sequence of {n_clips} clips')
+    clips_gt, clips_pred, clips_outputs = [], [], []
+    for j in range(n_clips):
+        clip_preds = sublists_pred[j]
+        clip_pred = np.array(clip_preds).argmax()
+        clips_len.append(len(sublists_gt[j]))
+        clips_gt.append(sublists_gt[j][0])
+        clips_pred.append(clip_pred)
+        clips_outputs.append(scipy.special.softmax(np.array(clip_preds)))
+    clips_outputs = np.array(clips_outputs)
+    if num_frames:
+        return clips_gt, clips_pred, clips_outputs, clips_len
+    else:
+        return clips_gt, clips_pred, clips_outputs
 
 
 def plot_cfm(folder_path, matrix, title):
