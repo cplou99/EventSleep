@@ -2,13 +2,20 @@
 
 Welcome to the EventSleep code repository!
 
+ArmsShake             |  Hands2Head           |  Head   |  LegsShake 
+:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:
+![](https://github.com/cplou99/EventSleep/blob/main/Gifs/ArmsShake-pos_neg.gif)  |  ![](https://github.com/cplou99/EventSleep/blob/main/Gifs/Hands2Head-pos_neg.gif) |  ![](https://github.com/cplou99/EventSleep/blob/main/Gifs/Head-pos_neg.gif)  | ![](https://github.com/cplou99/EventSleep/blob/main/Gifs/Legs-pos_neg.gif)
+
+
 Here you will find a collection of useful scripts and tools designed to work with the EventSleep dataset.
 
-## Environment
+## Python Environment
 To ensure a smooth setup, we have included a EventSleepEnv.yml file that lists all the necessary libraries 
 and their versions. You can easily create a Python environment with the required dependencies, executing:
 
- $ conda env create -f EventSleepEnv.yml
+```ruby
+ conda env create -f EventSleepEnv.yml
+```
 
 ## Toy Dataset
 Furthermore, we have included a folder named "Toy_Data", which contains a small subset of the original data. 
