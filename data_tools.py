@@ -13,6 +13,7 @@ import seaborn as sn
 from tabulate import tabulate
 from pathlib import Path
 from scipy import stats
+import os
 
 def LabelsNames():
     labels_dict = {0: 'HeadMove', 1: 'Hands2Face/Head', 2: 'RollLeft', 3: 'RollRight', 4: 'LegsShake', 5: 'ArmsShake',
@@ -227,6 +228,124 @@ def plot_cfm(folder_path, matrix, title):
     if is_nan:
         ax.annotate("* Nan means label not present in this experiment", xy=(2.5, 2.5), xytext=(x_sub, y_sub), fontsize=18,
                     ha='center', va='bottom', color='black')
-    plt.savefig(f'{folder_path}/cfm_{title}.png')
+    plt.savefig(f'{folder_path}/results/cfm_{title}.png')
 
 
+
+def ReliabilityBins(probs, targets):
+    p_ = probs.max(-1)
+    N = probs.shape[0]
+    bins = list(np.linspace(0, 1, 11))
+    confidences, accuracies, count = [], [], []
+    for i in range(len(bins) - 1):
+        mask = (p_ >= bins[i]) & (p_ < bins[i + 1])
+        p = p_[mask]
+        tick = (probs[mask, :].argmax(-1) == targets[mask])
+        dummy = np.array(list(map(float, tick)))
+        count.append(0.0 if not p.any() else mask.sum() / N)
+        confidences.append(0.0 if not p.any() else p.mean())
+        accuracies.append(0.0 if not dummy.any() else dummy.mean())
+
+    return confidences, accuracies, count
+
+def CalibrationMetrics(probs, targets):
+    confidences, accuracies, count = ReliabilityBins(probs, targets)
+    dif = np.abs(np.asarray(confidences) - np.asarray(accuracies))
+    ece, mce = np.mean(dif * np.asarray(count)), np.max(dif)
+    bins_ace = np.count_nonzero(count)
+    ace = np.sum(dif)/bins_ace
+
+    return ace, ece, mce
+
+
+def PlotReliabilityDiagram(probs, targets, title, root=None):
+    p = probs.max(-1)
+    bins = list(np.linspace(0, 1, 11))
+    confidences, accuracies, _ = ReliabilityBins(probs, targets)
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 8), facecolor='white')
+
+    ax.grid(True)
+    ax.set_xlabel('Confidence')
+    ax.set_ylabel('Accuracy')
+    ax.hist(p, bins=bins, color='lightgray', weights=np.ones_like(p) / len(p), label='Frequency', zorder=2)
+    ax.set_xticks(ticks=[round(j, 2) for j in bins], labels=[str(round(j, 2)) for j in bins])
+    ax.set_yticks(ticks=[round(j, 2) for j in bins], labels=[str(round(j, 2)) for j in bins])
+    ax.plot(confidences, accuracies, color='blue', marker='o', label="Accuracy")
+    for i in range(len(bins)-1):
+        if i == 0:
+            ax.plot([confidences[i], confidences[i]], [accuracies[i], confidences[i]], color='red', label="Calibration Error")
+        else:
+            ax.plot([confidences[i], confidences[i]], [accuracies[i], confidences[i]], color='red')
+    ax.plot([0, 1], [0, 1], '--', color='gray', label='Perfect Calibration')
+    ax.legend()
+    plt.savefig(f'{root}/results/reliability_{title}.png')
+
+
+
+def plot_histograms(outputs, laplace_outputs, labels, test_x, n_ens, idxs, root):
+    len = test_x.shape[0]
+    f_outputs = outputs[-len:]
+    f_laplace_outputs = laplace_outputs[-len:]
+    f_labels = labels[-len:]
+    for k in idxs:
+        out = f_outputs[k, :].tolist()
+        lap_out = f_laplace_outputs[k, :].tolist()
+
+        event_frame_pos = test_x[k, 0, :, :]
+        event_frame_neg = test_x[k, 1, :, :]
+
+        # Example histogram data (two lists of 10 values each, representing probability predictions)
+        hist_data1 = np.array(out)
+        hist_data2 = np.array(lap_out)
+
+        # Labels for the categories
+        labels = ['Head', 'Hands', 'RollL', 'RollR',  'Legs', 'Arms', 'LieL', 'LieR', 'LieU', 'LieD']
+        # Adjusting the subplot sizes to make the histograms smaller than the main image
+        fig, ax = plt.subplots(3, 1, figsize=(10, 12), gridspec_kw={'height_ratios': [3, 1, 1]})
+        # Plot the image
+        m1 = event_frame_pos.detach().cpu().numpy()
+        m1[m1 == 0] = np.nan
+        m1 = m1.astype('float')
+        ax[0].imshow(m1, alpha=0.5, cmap='Greens')
+
+        m2 = event_frame_neg.detach().cpu().numpy()
+        m2[m2 == 0] = np.nan
+        m2 = m2.astype('float')
+        ax[0].imshow(m2, alpha=0.5, cmap='Reds')
+        ax[0].set_facecolor('white')
+        ax[0].grid(False)
+        ax[0].set_xticks([])
+        ax[0].set_yticks([])
+
+        # ax[0].imshow(image_data, cmap='viridis')
+        ax[0].set_title("Event Frame")
+        # Plot the first histogram
+        ax[1].bar(labels, hist_data1, color='blue')
+        if n_ens == 1:
+            ax[1].set_title("Determ. Classifier")
+        else:
+            ax[1].set_title("Ensembles")
+        ax[1].set_ylabel("Probability")
+        ax[1].set_ylim(0, 1)  # Assuming probabilities are between 0 and 1
+        ax[1].set_facecolor('white')
+
+
+        # Plot the second histogram
+        ax[2].bar(labels, hist_data2, color='green')
+        if n_ens == 1:
+            ax[2].set_title("Laplace classifier")
+        else:
+            ax[2].set_title("Laplace Ensembles")
+        ax[2].set_ylabel("Probability")
+        ax[2].set_ylim(0, 1)  # Assuming probabilities are between 0 and 1
+        ax[2].set_facecolor('white')
+
+        ax[0].set_axis_on()
+        plt.tight_layout()
+
+        histograms_path = f'{root}/results/histograms'
+        if not os.path.exists(histograms_path):
+            os.makedirs(histograms_path)
+        plt.savefig(f'{root}/results/histograms/frame{k}_ens{n_ens}.jpg')
+
+    return

@@ -91,7 +91,6 @@ def model_hyperparameters(frames_per_image):
     in_channels = frames_per_image
     out_channels = 10
 
-    n_k_params = 18
     n_epochs = 2
     lr = 1e-3
     batch_size = 32
@@ -109,7 +108,7 @@ def training_test_strategy(toy_data):
     else:
         subjects_test = [9, 12, 13, 14]
         subjects_full_test = [9, 13, 15]
-
+    configs_test = [1, 2, 3]
 
 @ex.capture
 def extract_infrared_data(infrared_frame_folder, inf_width, inf_height, frames_per_image, subjects, configs,
@@ -200,41 +199,42 @@ def load_model(in_channels, out_channels, lr, device, weight_decay, load_pretrai
 
 
 @ex.capture
-def test_model(folder_path, model, subjects_test, batch_size, out_channels):
+def test_model(folder_path, model, subjects_test, configs_test, batch_size, out_channels):
     cfms, clip_cfms = [], []
-    configs = [[1], [2], [3]]
+    y_pred, y_gt, outputs = [], [], []
+
     t0 = time.time()
-    for config in configs:
-        y_pred, y_gt, outputs = [], [], []
-        test_loader = extract_infrared_data(subjects=subjects_test, configs=config, batch_size=batch_size,
-                                            data_augmentation=False, shuffle=False, full_sequence=False)
-
-        for inputs, targets in test_loader:
-            output = model(inputs)
-            y_pred.append(output.argmax(-1).detach().cpu().numpy().tolist())
-            y_gt.append(targets.detach().cpu().numpy().tolist())
-            outputs.append(output.cpu().detach().numpy().tolist())
-
-        l_gt = [item for sublist in y_gt for item in sublist]
-        l_pred = [item for sublist in y_pred for item in sublist]
-        matrix = confusion_matrix(l_gt, l_pred, labels=np.arange(0, out_channels))
-        plot_cfm(folder_path=folder_path, matrix=matrix, title=f'FramesPred_Config{config}')
-        cfms.append(matrix)
-
-        clips_gt, clips_pred = mode_pred_per_clips(l_gt, l_pred)
-        clip_matrix = confusion_matrix(clips_gt, clips_pred, labels=np.arange(0, out_channels))
-        plot_cfm(folder_path=folder_path, matrix=clip_matrix, title=f'ClipPred_Config{config}')
-        clip_cfms.append(clip_matrix)
+    test_loader = extract_infrared_data(subjects=subjects_test, configs=configs_test, batch_size=batch_size,
+                                        data_augmentation=False, shuffle=False, full_sequence=False)
     t1 = time.time()
+    for inputs, targets in test_loader:
+        output = model(inputs)
+        y_pred.append(output.argmax(-1).detach().cpu().numpy().tolist())
+        y_gt.append(targets.detach().cpu().numpy().tolist())
+        outputs.append(output.cpu().detach().numpy().tolist())
 
-    matrix_final = np.sum(np.array(cfms), axis=0)
-    plot_cfm(folder_path=folder_path, matrix=matrix_final, title='FramesPred_AllConfigs')
+    l_gt = [item for sublist in y_gt for item in sublist]
+    l_pred = [item for sublist in y_pred for item in sublist]
+    outputs = torch.cat(outputs)
+    probs = torch.softmax(outputs, dim=1)
+    t2 = time.time()
 
-    clip_matrix_final = np.sum(np.array(clip_cfms), axis=0)
-    plot_cfm(folder_path=folder_path, matrix=clip_matrix_final, title='ClipPred_AllConfigs')
+    matrix = confusion_matrix(l_gt, l_pred, labels=np.arange(0, out_channels))
+    plot_cfm(folder_path=folder_path, matrix=matrix, title=f'FramesPred_Config{configs_test}')
+    cfms.append(matrix)
+
+    clips_gt, clips_pred = mode_pred_per_clips(l_gt, l_pred)
+    clip_matrix = confusion_matrix(clips_gt, clips_pred, labels=np.arange(0, out_channels))
+    plot_cfm(folder_path=folder_path, matrix=clip_matrix, title=f'ClipPred_Config{configs_test}')
+    clip_cfms.append(clip_matrix)
+
+    clips_gt, bayesian_clips_pred, bayesian_clips_output = prob_pred_per_clips(l_gt, probs)
+    bayesian_clip_matrix = confusion_matrix(clips_gt, bayesian_clips_pred, labels=np.arange(0, out_channels))
+    plot_cfm(folder_path=folder_path, matrix=bayesian_clip_matrix, title=f'ProbClipPred_Config{configs_test}')
 
     print("Inference finished")
-    print("Time spent during inference:", t1-t0)
+    print("Time spent loading data:", t1 - t0)
+    print("Time spent during inference:", t2 - t1)
     return
 
 
