@@ -61,7 +61,7 @@ def create_folder(toy_data):
     configs_train = [1, 2, 3]
 
     if toy_data: root_dir = f'{Path(os.getcwd())}/Toy_Data'
-    else: root_dir = f'{Path(os.getcwd()).parent.as_posix()}/DATA'
+    else: root_dir = f'{Path(os.getcwd())}/DATA'
 
     if configs_train == [1, 2, 3]:
         folder_name_configs = 'TrainAllConfigs'

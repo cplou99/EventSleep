@@ -50,11 +50,11 @@ ex = Experiment('ClassificationDeepSleep')
 
 @ex.config
 def toy_data():
-    toy_data = True
+    toy_data = False
 
 @ex.config
 def create_folder(toy_data):
-    folder_name = 'baseline'
+    folder_name = '2023-11-11-17-11-24'
 
     # configs_train = [1]
     configs_train = [1, 2, 3]
@@ -69,7 +69,7 @@ def create_folder(toy_data):
         print("The introduced checkpoint path does not exist")
 
     if toy_data: root_dir = f'{Path(os.getcwd())}/Toy_Data/'
-    else: root_dir = f'{Path(os.getcwd()).parent.as_posix()}/DATA/'
+    else: root_dir = f'{Path(os.getcwd())}/DATA/'
 
     folder_path = Path(checkpoint_paths[0]).parent.as_posix()
 
@@ -266,7 +266,7 @@ def inference_laplace_model(model, lap_classifier, test_loader, device):
     probs = [item for sublist in probs for item in sublist]
 
     t1 = time.time()
-    print("Time spent during inference:", t1 - t0)
+    print("Time spent during inference with Laplace:", t1 - t0)
     return l_gt, l_pred, probs
 
 @ex.capture
@@ -304,6 +304,12 @@ def test_model(folder_path, model, train_loader, checkpoint_paths, subjects_test
             lap_classifier = fit_laplace_classifier(model, train_loader)
             lap_gt, lap_pred, lap_probs = inference_laplace_model(model, lap_classifier, test_loader)
             all_lapens_probs.append(lap_probs)
+
+        clips_gt, clips_pred = mode_pred_per_clips(l_gt, l_pred)
+        acc = balanced_accuracy_score(clips_gt, clips_pred)
+        print("Checkpoint:", checkpoint_path, "accuracy", acc)
+        clip_matrix = confusion_matrix(clips_gt, clips_pred, labels=np.arange(0, 10))
+        print(clip_matrix)
 
     all_ens_probs = np.stack(all_ens_probs)
     ens_probs = np.mean(all_ens_probs, axis=0)

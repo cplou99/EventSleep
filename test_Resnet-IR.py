@@ -61,7 +61,7 @@ def create_folder(toy_data):
         print("The introduced checkpoint path does not exist")
 
     if toy_data: root_dir = f'{Path(os.getcwd())}/Toy_Data/'
-    else: root_dir = f'{Path(os.getcwd()).parent.as_posix()}/DATA/'
+    else: root_dir = f'{Path(os.getcwd())}/DATA/'
 
     folder_path = Path(checkpoint_path).parent.as_posix()
 
