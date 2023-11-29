@@ -371,10 +371,10 @@ def test_full_sequence_model(model, train_loader, checkpoint_paths, subject_full
         lapens_probs = np.mean(all_lapens_probs, axis=0)
         lapens_preds = np.argmax(lapens_probs, axis=-1)
 
-    matrix = confusion_matrix(l_gt, l_pred, labels=np.arange(0, out_channels))
+    matrix = confusion_matrix(l_gt, ens_preds, labels=np.arange(0, out_channels))
     plot_cfm(folder_path=folder_path, matrix=matrix, title=f'ens_fullsequence_s{subject_full_test}_c{config}')
 
-    matrix = confusion_matrix(lap_gt, lap_pred, labels=np.arange(0, out_channels))
+    matrix = confusion_matrix(lap_gt, lapens_preds, labels=np.arange(0, out_channels))
     plot_cfm(folder_path=folder_path, matrix=matrix, title=f'lapens_fullsequence_s{subject_full_test}_c{config}')
 
     file_name = f'{folder_path}/results/fullsequences_prediction.csv'
