@@ -8,6 +8,8 @@ import torch, torchvision
 from torchvision.models import ResNet18_Weights, ResNet34_Weights
 from torch.utils.data import TensorDataset, DataLoader
 from data_tools import *
+from utils import *
+
 from events_to_frames import npyclipsevents_to_npyclipsframes, aedatevents_to_npyframes
 from laplace import Laplace
 
@@ -24,27 +26,6 @@ def warn(*args, **kwargs):
     pass
 import warnings
 warnings.warn = warn
-
-class MyResNet(torch.nn.Module):
-    def __init__(self, resnet_model, in_channels, out_channels):
-        super(MyResNet, self).__init__()
-        resnet_model.conv1 = torch.nn.Conv2d(in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-        self.pretrained = resnet_model
-        self.fc = torch.nn.Linear(1000, out_channels)
-        self.initialize_weights()
-
-    def initialize_weights(self):
-        torch.nn.init.xavier_normal(self.fc.weight)
-
-    def resnet(self, x):
-        x = self.pretrained(x)
-        return x
-
-    def forward(self, x):
-        x = self.pretrained(x)
-        x = self.fc(x)
-        return x
-
 
 ex = Experiment('ClassificationDeepSleep')
 
@@ -109,15 +90,12 @@ def model_hyperparameters(k, checkpoint_paths):
     in_channels = 2 * k
     out_channels = 10
 
-    # ck = torch.load(checkpoint_paths[0])
-    # n_epochs = ck['epoch']
-    # lr = ck['lr']
-    # batch_size = ck['batch_size']
-    # weight_decay = ck['weight_decay']
-    batch_size = 32
-    n_epochs = 10
-    lr = 1e-3
-    weight_decay = 0.01
+    ck = torch.load(checkpoint_paths[0])
+    n_epochs = ck['epoch']
+    lr = ck['lr']
+    batch_size = ck['batch_size']
+    weight_decay = ck['weight_decay']
+    del ck
 
     weights_labels = GiveWeightsToLabels()
     metric = torch.nn.CrossEntropyLoss(weight=weights_labels.to(device))
@@ -136,13 +114,13 @@ def bayesian_config(checkpoint_paths):
 def training_test_strategy(toy_data, configs_train, batch_size):
     configs_test = [1, 2, 3]
     if toy_data:
-        subjects_train = [1]
+        subjects_train = [5]
         subjects_test = [9]
         subjects_full_test = [9]
     else:
         subjects_train = [1, 2, 3, 4, 5, 6, 7, 8, 10]
         subjects_test = [9, 12, 13, 14]
-        subjects_full_test = [9, 13, 15]
+        subjects_full_test = [9, 12, 13, 14]
 
 
 @ex.capture
@@ -268,21 +246,22 @@ def inference_laplace_model(model, lap_classifier, test_loader, device):
     print("Time spent during inference with Laplace:", t1 - t0)
     return l_gt, l_pred, probs
 
+# @ex.capture
+# def accuracy_results(l_gt, l_pred, probs, out_channels, configs_test, folder_path, model_name):
+#     matrix = confusion_matrix(l_gt, l_pred, labels=np.arange(0, out_channels))
+#     plot_cfm(folder_path=folder_path, matrix=matrix, title=f'{model_name}_FramesPred_Config{configs_test}')
+#
+#     clips_gt, clips_pred = mode_pred_per_clips(l_gt, l_pred)
+#     clip_matrix = confusion_matrix(clips_gt, clips_pred, labels=np.arange(0, out_channels))
+#     plot_cfm(folder_path=folder_path, matrix=clip_matrix, title=f'{model_name}_ClipPred_Config{configs_test}')
+#
+#     clips_gt, bayesian_clips_pred, bayesian_clips_output = prob_pred_per_clips(l_gt, probs)
+#     bayesian_clip_matrix = confusion_matrix(clips_gt, bayesian_clips_pred, labels=np.arange(0, out_channels))
+#     plot_cfm(folder_path=folder_path, matrix=bayesian_clip_matrix, title=f'{model_name}_ProbClipPred_Config{configs_test}')
+
 @ex.capture
-def accuracy_results(l_gt, l_pred, probs, out_channels, configs_test, folder_path, model_name):
-    matrix = confusion_matrix(l_gt, l_pred, labels=np.arange(0, out_channels))
-    plot_cfm(folder_path=folder_path, matrix=matrix, title=f'{model_name}_FramesPred_Config{configs_test}')
-
-    clips_gt, clips_pred = mode_pred_per_clips(l_gt, l_pred)
-    clip_matrix = confusion_matrix(clips_gt, clips_pred, labels=np.arange(0, out_channels))
-    plot_cfm(folder_path=folder_path, matrix=clip_matrix, title=f'{model_name}_ClipPred_Config{configs_test}')
-
-    clips_gt, bayesian_clips_pred, bayesian_clips_output = prob_pred_per_clips(l_gt, probs)
-    bayesian_clip_matrix = confusion_matrix(clips_gt, bayesian_clips_pred, labels=np.arange(0, out_channels))
-    plot_cfm(folder_path=folder_path, matrix=bayesian_clip_matrix, title=f'{model_name}_ProbClipPred_Config{configs_test}')
-
-@ex.capture
-def test_model(folder_path, model, train_loader, checkpoint_paths, subjects_test, configs_test, batch_size, laplace, n_ens):
+def test_model(folder_path, model, train_loader, checkpoint_paths, subjects_test, configs_test, batch_size, laplace,
+               out_channels, n_ens):
     t0 = time.time()
     test_loader = extract_events_data(subjects=subjects_test, configs=configs_test, batch_size=batch_size,
                                       data_augmentation=False, shuffle=False, full_sequence=False)
@@ -320,7 +299,7 @@ def test_model(folder_path, model, train_loader, checkpoint_paths, subjects_test
         lapens_preds = np.argmax(lapens_probs, axis=-1)
 
     # Accuracy results
-    accuracy_results(l_gt, ens_preds, ens_probs, model_name='Determ')
+    accuracy_results(l_gt, ens_preds, ens_probs, out_channels, configs_test, folder_path, model_name='Determ')
     if laplace:
         accuracy_results(lap_gt, lapens_preds, lapens_probs, model_name='Laplace')
 
@@ -406,9 +385,10 @@ def run(folder_path, subjects_test, subjects_full_test, subjects_train, configs_
                                        configs=configs_train, shuffle=True,  full_sequence=False)
 
     model, optimizer = load_model(load_pretrained_weights=False)
-    test_model(model=model, subjects_test=subjects_test, train_loader=train_loader)
+    # test_model(model=model, subjects_test=subjects_test, train_loader=train_loader)
 
     for subject_full_test in subjects_full_test:
-        test_full_sequence_model(model=model, train_loader=train_loader, subject_full_test=subject_full_test, config=1)
+        for config in [1, 2, 3]:
+            test_full_sequence_model(model=model, train_loader=train_loader, subject_full_test=subject_full_test, config=config)
 
     ex.commands["save_config"](config_filename=f'{folder_path}/test_details.json')

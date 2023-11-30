@@ -7,9 +7,10 @@ Created on Mar 2023
 import torch, torchvision
 from torchvision.models import ResNet18_Weights, ResNet34_Weights
 from torch.utils.data import TensorDataset, DataLoader
-from data_tools import *
-from events_to_frames import npyclipsevents_to_npyclipsframes
 
+from data_tools import *
+from utils import *
+from events_to_frames import npyclipsevents_to_npyclipsframes
 
 from pathlib import Path
 import numpy as np
@@ -26,29 +27,6 @@ def warn(*args, **kwargs):
     pass
 import warnings
 warnings.warn = warn
-
-
-class MyResNet(torch.nn.Module):
-    def __init__(self, resnet_model, in_channels, out_channels):
-        super(MyResNet, self).__init__()
-        resnet_model.conv1 = torch.nn.Conv2d(in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3),
-                                             bias=False)
-        self.pretrained = resnet_model
-        self.fc = torch.nn.Linear(1000, out_channels)
-        self.initialize_weights()
-
-    def initialize_weights(self):
-        torch.nn.init.xavier_normal(self.fc.weight)
-
-    def resnet(self, x):
-        x = self.pretrained(x)
-        return x
-
-    def forward(self, x):
-        x = self.pretrained(x)
-        x = self.fc(x)
-        return x
-
 
 ex = Experiment('ClassificationDeepSleep')
 
@@ -124,7 +102,7 @@ def model_hyperparameters(k):
 @ex.config
 def training_test_strategy(toy_data):
     if toy_data:
-        subjects_train = [1]
+        subjects_train = [5]
         subjects_val = [11]
     else:
         subjects_train = [1, 2, 3, 4, 5, 6, 7, 8, 10]

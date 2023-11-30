@@ -28,6 +28,19 @@ class MyResNet(torch.nn.Module):
         x = self.fc(x)
         return x
 
+class MyResNetIR(torch.nn.Module):
+    def __init__(self, resnet_model, in_channels, out_channels):
+        super(MyResNetIR, self).__init__()
+        resnet_model.conv1 = torch.nn.Conv2d(in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+        resnet_model.conv1 = torch.nn.Conv2d(in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3),
+                                             bias=False)
+        self.pretrained = resnet_model
+        self.extra_layer = torch.nn.Sequential(torch.nn.Linear(1000, out_channels))
+
+    def forward(self, x):
+        x = self.pretrained(x)
+        x = self.extra_layer(x)
+        return x
 
 def accuracy_results(l_gt, l_pred, probs, out_channels, configs_test, folder_path, model_name):
     matrix = confusion_matrix(l_gt, l_pred, labels=np.arange(0, out_channels))

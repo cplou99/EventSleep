@@ -8,6 +8,7 @@ import torch, torchvision
 from torchvision.models import ResNet18_Weights
 from torch.utils.data import TensorDataset, DataLoader
 from data_tools import *
+from utils import *
 
 from pathlib import Path
 import numpy as np
@@ -26,24 +27,11 @@ def warn(*args, **kwargs):
 import warnings
 warnings.warn = warn
 
-class MyResNet(torch.nn.Module):
-    def __init__(self, resnet_model, in_channels, out_channels):
-        super(MyResNet, self).__init__()
-        resnet_model.conv1 = torch.nn.Conv2d(in_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
-        self.pretrained = resnet_model
-        self.extra_layer = torch.nn.Sequential(torch.nn.Linear(1000, out_channels))
-
-    def forward(self, x):
-        x = self.pretrained(x)
-        x = self.extra_layer(x)
-        return x
-
-
 ex = Experiment('ClassificationDeepSleep')
 
 @ex.config
 def toy_data():
-    toy_data = True
+    toy_data = False
 
 @ex.config
 def create_folder(toy_data):
@@ -69,7 +57,7 @@ def frames_post_processing(root_dir):
     inf_height = 180
     frames_per_image = 3
     infrared_frame_folder = f'{root_dir}/Infrared/TRAIN'
-    data_augmentation = True
+    data_augmentation = False
     crop_bed = True
 
 
@@ -94,7 +82,7 @@ def model_hyperparameters(frames_per_image):
     n_epochs = 10
     lr = 1e-3
     batch_size = 32
-    weight_decay = 0
+    weight_decay = 0.01
 
     weights_labels = GiveWeightsToLabels()
     metric = torch.nn.CrossEntropyLoss(weight=weights_labels.to(device))
@@ -103,7 +91,7 @@ def model_hyperparameters(frames_per_image):
 @ex.config
 def training_test_strategy(toy_data):
     if toy_data:
-        subjects_train = [1]
+        subjects_train = [5]
         subjects_val = [11]
     else:
         subjects_train = [1, 2, 3, 4, 5, 6, 7, 8, 10]
@@ -179,14 +167,14 @@ def train_model(model, optimizer, metric, subjects_train, subjects_val, n_epochs
 
     t0 = time.time()
     val_loader = extract_infrared_data(subjects=subjects_val, configs=train_configs, shuffle=True)
-    training_loader = extract_infrared_data(subjects=subjects_train, configs=train_configs, batch_size=batch_size, shuffle=True)
+    training_loader = extract_infrared_data(subjects=subjects_train, configs=train_configs,
+                                            batch_size=batch_size, shuffle=True)
     acc_val_max = 0
 
     # Train
     t1 = time.time()
     for n_ep in range(n_epochs):
         n_batch = 0
-
         for inputs, targets in training_loader:
             optimizer.zero_grad()
             outputs = model(inputs)
