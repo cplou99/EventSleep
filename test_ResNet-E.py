@@ -54,7 +54,7 @@ def toy_data():
 
 @ex.config
 def create_folder(toy_data):
-    folder_name = '2023-11-11-17-11-24'
+    folder_name = 'baseline'
 
     # configs_train = [1]
     configs_train = [1, 2, 3]
@@ -125,7 +125,6 @@ def model_hyperparameters(k, checkpoint_paths):
 @ex.config
 def bayesian_config(checkpoint_paths):
     bayesian = True
-    print("Hellooo")
     if bayesian:
         n_ens = len(checkpoint_paths)
         laplace = True
