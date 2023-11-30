@@ -169,7 +169,7 @@ def aedatevents_to_npyframes(subject, config, chunk_len_ms=150, k=1, max_time_ms
     if toy_data:
         root_dir = f'./Toy_Data/EventCamera/TEST_FULL_SEQUENCE'
     else:
-        root_dir = f'{Path(os.getcwd()).parent.as_posix()}/DATA/EventCamera/TEST_FULL_SEQUENCE'
+        root_dir = f'{Path(os.getcwd())}/DATA/EventCamera/TEST_FULL_SEQUENCE'
     f_name = f'{root_dir}/subject{subject:02}_config{config}.aedat4'
 
     frames_dir = f'{Path(root_dir).parent.parent.as_posix()}/EventFrames'
