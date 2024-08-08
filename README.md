@@ -24,8 +24,8 @@ Furthermore, we have included a folder named "Toy_Data", which contains a small 
 This subset enables users to run the scripts without the need to download the entire dataset. In this way, this
 folder contains some isolated clips from a few trials. Most of the scripts include an option to specify if
 you want to run it either with the Toy_Data folder or with the original Dataset. Please note that to obtain the 
-expected and accurate results, it is necessary to have access to the original complete dataset which will be 
-stored, upon acceptance, in Synapse or Zenodo platforms.
+expected and accurate results, it is necessary to have access to the original complete dataset which is located 
+in [Synapse](https://www.synapse.org/Synapse:syn54156328/wiki/626824).
 
 ## Pre-trained models
 Additionally, we include a subfolder named "Models" which contains the trained models for our main
