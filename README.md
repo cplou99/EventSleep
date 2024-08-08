@@ -1,5 +1,7 @@
 # EventSleep
 
+[[Paper]](https://arxiv.org/abs/2404.01801) [[Project Page]](https://sites.google.com/unizar.es/eventsleep/home)  [[Data]](https://www.synapse.org/Synapse:syn54156328/wiki/626824) 
+
 Welcome to the EventSleep code repository!
 
 ArmsShake             |  Hands2Head           |  Head   |  LegsShake 
