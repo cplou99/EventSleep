@@ -72,3 +72,18 @@ Here is a list of the scripts included in this folder:
 
 
 We hope you find this repository helpful for your research and exploration of the EventSleep dataset.
+
+## Citation
+If you find this repository useful, please cite our paper:
+
+```ruby
+ @article{plou2024eventsleep,
+  title={EventSleep: Sleep Activity Recognition with Event Cameras},
+  author={Plou, Carlos and Gallego, Nerea and Sabater, Alberto and Montijano, Eduardo and Urcola, Pablo and Montesano, Luis and Martinez-Cantin, Ruben and Murillo, Ana C},
+  journal={arXiv preprint arXiv:2404.01801},
+  year={2024}
+}
+```
+
+## Acknowledgement
+![](https://github.com/cplou99/EventSleep/blob/main/Gifs/image001_EU.png)
