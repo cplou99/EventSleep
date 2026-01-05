@@ -1,6 +1,29 @@
-# EventSleep
+<h1 align="center">EventSleep: Sleep Activity Recognition with Event Cameras</h1>
+<h3 align="center">ECCV 2024 - NEVI Workshop</h3>
+ <div align="center">
+  <a href="https://cplou99.github.io/web/" target="_blank">Carlos Plou</a>,
+  <a href="" target="_blank">Nerea Gallego</a>,
+  <a href="https://albertosabater.github.io/about/" target="_blank">Alberto Sabater</a>,
+  <a href="" target="_blank">Pablo Urcola</a>,
+  <a href="" target="_blank">Luis Montesano</a>,
+  <a href="https://sites.google.com/unizar.es/eduardo-montijano" target="_blank">Eduardo Montijano</a>,
+  <a href="https://webdiis.unizar.es/~rmcantin/" target="_blank">Ruben Martinez-Cantin</a>,
+  <a href="https://sites.google.com/unizar.es/anac/home?authuser=0" target="_blank">Ana C. Murillo</a>,
+</div>
 
-### [[Paper]](https://arxiv.org/abs/2404.01801) [[Project Page]](https://sites.google.com/unizar.es/eventsleep/home)  [[Data]](https://www.synapse.org/Synapse:syn54156328/wiki/626824) 
+
+<div align="center">
+   <a href="https://sites.google.com/unizar.es/eventsleep/home"><strong>🌍 Homepage</strong></a> | <a href="https://www.synapse.org/Synapse:syn54156328/wiki/626824"><strong>🤗 Dataset</strong></a> |  <a href="https://arxiv.org/abs/2404.01801"><strong>📝 Paper</strong></a>
+   </div>   
+
+
+## 🔔 News:
+- 🆕 12/2025: EventSleep2 dataset and code released!
+- :fire: 12/2025: [EventSleep2 paper](https://www.sciencedirect.com/science/article/pii/S107731422500342X?via%3Dihub) accepted at CVIU!
+- :checkered_flag: 8/2024: Code released!
+- 🥳 8/2024: EventSleep paper accepted at ECCV 2024-NEVI Workshop!
+- ⭐ 7/2024: We have released the [EventSleep1-data](https://www.synapse.org/Synapse:syn54156328/wiki/626824) and [Paper](https://arxiv.org/abs/2404.01801)! 🔥
+
 
 Welcome to the EventSleep code repository!
 
@@ -74,7 +97,7 @@ Here is a list of the scripts included in this folder:
 We hope you find this repository helpful for your research and exploration of the EventSleep dataset.
 
 ## Citation
-If you find this repository useful, please cite our paper:
+If you find our work inspiring, please cite our papers:
 
 ```ruby
 @inproceedings{plou2024eventsleep,
@@ -85,7 +108,18 @@ If you find this repository useful, please cite our paper:
   year={2024},
   organization={Springer}
 }
+
+@article{gallego2026eventsleep2,
+  title={EventSleep2: Sleep activity recognition on complete night sleep recordings with an event camera},
+  author={Gallego, Nerea and Plou, Carlos and Marcos, Miguel and Urcola, Pablo and Montesano, Luis and Montijano, Eduardo and Martinez-Cantin, Ruben and Murillo, Ana C},
+  journal={Computer Vision and Image Understanding},
+  pages={104619},
+  year={2026},
+  publisher={Elsevier}
+}
 ```
 
 ## Acknowledgement
+This work was supported by PID2024-159284NB-I00, PID2021- 125514NB-I00, PID2024-158322OB-I00, PID2021-125209OB-I00, and AIA2025-1635 grants funded by MCIN/AEI/10.13039/501100011033 ERDF/NextGenerationEU/PRTR, grant no. 101135782 (MANOLO project) funded by the European Union, two DGA scholarships and project T45_23R.
+
 ![](https://github.com/cplou99/EventSleep/blob/main/Gifs/image001_EU.png)
