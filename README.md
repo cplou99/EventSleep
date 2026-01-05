@@ -13,19 +13,19 @@
 
 
 <div align="center">
-   <a href="https://sites.google.com/unizar.es/eventsleep/home"><strong>🌍 Homepage</strong></a> | <a href="https://www.synapse.org/Synapse:syn54156328/wiki/626824"><strong>🤗 Dataset</strong></a> |  <a href="https://arxiv.org/abs/2404.01801"><strong>📝 Paper</strong></a>
+   <a href="https://sites.google.com/unizar.es/eventsleep/home"><strong>🌍 Homepage</strong></a> | <a href="https://www.synapse.org/Synapse:syn54156328/wiki/626824"><strong>🤗 Dataset</strong></a> |  <a href="https://arxiv.org/abs/2404.01801"><strong>📝 EventSleep1 Paper</strong></a> |  <a href="https://www.sciencedirect.com/science/article/pii/S107731422500342X?via%3Dihub"><strong>📝 EventSleep2 Paper</strong></a>
    </div>   
 
 
 ## 🔔 News:
-- 🆕 12/2025: EventSleep2 dataset and code released!
+- 🆕 12/2025: [EventSleep2 dataset](https://www.synapse.org/Synapse:syn54156328/wiki/626824) and [code]() released!
 - :fire: 12/2025: [EventSleep2 paper](https://www.sciencedirect.com/science/article/pii/S107731422500342X?via%3Dihub) accepted at CVIU!
 - :checkered_flag: 8/2024: Code released!
 - 🥳 8/2024: EventSleep paper accepted at ECCV 2024-NEVI Workshop!
 - ⭐ 7/2024: We have released the [EventSleep1-data](https://www.synapse.org/Synapse:syn54156328/wiki/626824) and [Paper](https://arxiv.org/abs/2404.01801)! 🔥
 
-
-Welcome to the EventSleep code repository!
+## :eyes: Content:
+This repository contains the code related to [EventSleep paper](https://arxiv.org/abs/2404.01801).
 
 ArmsShake             |  Hands2Head           |  Head   |  LegsShake 
 :-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:
