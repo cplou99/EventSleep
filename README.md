@@ -1,4 +1,4 @@
-<h1 align="center">EventSleep: Sleep Activity Recognition with Event Cameras</h1>
+<h1 align="center">EventSleep: Sleep Activity Recognition with Event Cameras</h1>
 <h3 align="center">ECCV 2024 - NEVI Workshop</h3>
  <div align="center">
   <a href="https://cplou99.github.io/web/" target="_blank">Carlos Plou</a>,
