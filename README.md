@@ -77,11 +77,13 @@ We hope you find this repository helpful for your research and exploration of th
 If you find this repository useful, please cite our paper:
 
 ```ruby
- @article{plou2024eventsleep,
+@inproceedings{plou2024eventsleep,
   title={EventSleep: Sleep Activity Recognition with Event Cameras},
-  author={Plou, Carlos and Gallego, Nerea and Sabater, Alberto and Montijano, Eduardo and Urcola, Pablo and Montesano, Luis and Martinez-Cantin, Ruben and Murillo, Ana C},
-  journal={arXiv preprint arXiv:2404.01801},
-  year={2024}
+  author={Plou, Carlos and Gallego, Nerea and Sabater, Alberto and Urcola, Pablo and Montijano, Eduardo and Montesano, Luis and Martinez-Cantin, Ruben and Murillo, Ana C},
+  booktitle={European Conference on Computer Vision},
+  pages={52--69},
+  year={2024},
+  organization={Springer}
 }
 ```
 
