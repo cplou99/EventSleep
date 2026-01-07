@@ -103,9 +103,9 @@ If you find our work inspiring, please cite our papers:
 @inproceedings{plou2024eventsleep,
   title={EventSleep: Sleep Activity Recognition with Event Cameras},
   author={Plou, Carlos and Gallego, Nerea and Sabater, Alberto and Urcola, Pablo and Montijano, Eduardo and Montesano, Luis and Martinez-Cantin, Ruben and Murillo, Ana C},
-  booktitle={European Conference on Computer Vision},
+  booktitle={Computer Vision -- ECCV 2024 Workshops},
   pages={52--69},
-  year={2024},
+  year={2025},
   organization={Springer}
 }
 
