@@ -18,7 +18,7 @@
 
 
 ## 🔔 News:
-- 🆕 12/2025: [EventSleep2 dataset](https://www.synapse.org/Synapse:syn54156328/wiki/626824) and [code]() released!
+- 🆕 12/2025: [EventSleep2 dataset](https://www.synapse.org/Synapse:syn54156328/wiki/626824) and [code](https://github.com/ropertunizar/EventSleep2) released!
 - :fire: 12/2025: [EventSleep2 paper](https://www.sciencedirect.com/science/article/pii/S107731422500342X?via%3Dihub) accepted at CVIU!
 - :checkered_flag: 8/2024: Code released!
 - 🥳 8/2024: EventSleep paper accepted at ECCV 2024-NEVI Workshop!
